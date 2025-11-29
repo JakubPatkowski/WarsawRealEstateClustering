@@ -7,17 +7,18 @@ and log level management.
 
 import logging
 import sys
-from typing import Optional
+from types import TracebackType
+from typing import List, Optional, Type
 
 
 def setup_logging(
     level: int = logging.INFO,
     format_string: Optional[str] = None,
-    log_file: Optional[str] = None
+    log_file: Optional[str] = None,
 ) -> None:
     """
     Setup logging configuration for the entire application.
-    
+
     Args:
         level: Logging level (e.g., logging.DEBUG, logging.INFO)
         format_string: Custom format string for log messages
@@ -25,19 +26,17 @@ def setup_logging(
     """
     if format_string is None:
         format_string = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    
-    handlers = [logging.StreamHandler(sys.stdout)]
-    
+
+    # FIX 1: Explicitly type the list as generic logging.Handler objects
+    handlers: List[logging.Handler] = [logging.StreamHandler(sys.stdout)]
+
     if log_file:
         handlers.append(logging.FileHandler(log_file))
-    
+
     logging.basicConfig(
-        level=level,
-        format=format_string,
-        handlers=handlers,
-        force=True
+        level=level, format=format_string, handlers=handlers, force=True
     )
-    
+
     # Reduce verbosity of some third-party loggers
     logging.getLogger("urllib3").setLevel(logging.WARNING)
     logging.getLogger("requests").setLevel(logging.WARNING)
@@ -49,10 +48,10 @@ def setup_logging(
 def get_logger(name: str) -> logging.Logger:
     """
     Get a logger with the specified name.
-    
+
     Args:
         name: Logger name (typically __name__)
-        
+
     Returns:
         Configured logger instance
     """
@@ -62,22 +61,28 @@ def get_logger(name: str) -> logging.Logger:
 class LoggerAdapter:
     """
     Context manager for temporarily changing log level.
-    
+
     Example:
         with LoggerAdapter(logger, logging.DEBUG):
             logger.debug("This will be shown")
     """
-    
+
     def __init__(self, logger: logging.Logger, level: int):
         self.logger = logger
         self.new_level = level
         self.old_level = logger.level
-    
+
     def __enter__(self) -> logging.Logger:
         self.logger.setLevel(self.new_level)
         return self.logger
-    
-    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+
+    # FIX 2: Add correct type annotations for the exception arguments
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType],
+    ) -> None:
         self.logger.setLevel(self.old_level)
 
 

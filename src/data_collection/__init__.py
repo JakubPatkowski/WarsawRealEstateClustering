@@ -5,8 +5,4 @@ Provides data generation and API clients for collecting
 real estate data.
 """
 
-from src.data_collection.synthetic_generator import SyntheticDataGenerator
-
-__all__ = [
-    "SyntheticDataGenerator"
-]
+from src.data_collection.synthetic_generator import *
