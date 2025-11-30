@@ -1,0 +1,597 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warsaw Real Estate Clustering Analysis</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, #1a252f 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .header .timestamp { opacity: 0.8; font-size: 0.95em; }
+        .content { padding: 40px; }
+        .section { margin-bottom: 40px; }
+        
+        .section-title {
+            font-size: 1.5em;
+            color: var(--primary);
+            border-left: 4px solid var(--secondary);
+            padding-left: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover { transform: translateY(-5px); }
+        .card-value { font-size: 2.2em; font-weight: bold; color: var(--secondary); margin-bottom: 5px; }
+        .card-label { font-size: 0.85em; color: #666; text-transform: uppercase; letter-spacing: 1px; }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: var(--primary); color: white; font-weight: 600; text-transform: uppercase; font-size: 0.85em; }
+        tr:hover { background-color: #f8f9fa; }
+        
+        .cluster-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        
+        .metric-good { color: var(--success); }
+        .metric-ok { color: var(--warning); }
+        .metric-bad { color: var(--danger); }
+        
+        .plots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+        }
+        
+        .plot-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .plot-card img { width: 100%; height: auto; display: block; }
+        .plot-card .plot-title { padding: 15px; background: var(--light); font-weight: 600; color: var(--primary); }
+        
+        .map-link {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--secondary) 0%, #2980b9 100%);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1em;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+            transition: all 0.3s ease;
+        }
+        
+        .map-link:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(52, 152, 219, 0.6); }
+        
+        .interpretation {
+            background: #f0f4f8;
+            padding: 15px 20px;
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary);
+            margin: 15px 0;
+        }
+        
+        .footer {
+            background: var(--light);
+            padding: 30px 40px;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .methodology {
+            background: #fafbfc;
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+        
+        .methodology h4 { color: var(--primary); margin-bottom: 10px; }
+        .methodology ul { margin-left: 20px; }
+        .methodology li { margin: 8px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 Warsaw Real Estate Clustering Analysis</h1>
+            <p class="timestamp">Generated: 2025-11-30 09:05:37</p>
+        </div>
+        <div class="content">
+
+            <div class="section">
+                <h2 class="section-title">📊 Overview</h2>
+                <div class="cards">
+                    <div class="card">
+                        <div class="card-value">477</div>
+                        <div class="card-label">Properties</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-value">4</div>
+                        <div class="card-label">Clusters</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-value">30</div>
+                        <div class="card-label">Districts</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-value">0.318</div>
+                        <div class="card-label">Silhouette Score</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-value">13,047</div>
+                        <div class="card-label">Avg Price (PLN/m²)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">📈 Cluster Statistics</h2>
+                <p style="margin-bottom: 15px; color: #666;">Clusters sorted by average price (C0 = most expensive)</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Cluster</th>
+                            <th>Avg Price (PLN/m²)</th>
+                            <th>Std Dev</th>
+                            <th>Price Range</th>
+                            <th>Avg Area (m²)</th>
+                            <th>Avg Distance (km)</th>
+                            <th>Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                <tr>
+                    <td><span class="cluster-badge" style="background-color: #e74c3c;">C0</span></td>
+                    <td>23,433</td>
+                    <td>±4,279</td>
+                    <td>15,709 - 30,554</td>
+                    <td>64.6</td>
+                    <td>5.1</td>
+                    <td><strong>75</strong></td>
+                </tr>
+            
+                <tr>
+                    <td><span class="cluster-badge" style="background-color: #f39c12;">C1</span></td>
+                    <td>12,800</td>
+                    <td>±2,677</td>
+                    <td>6,007 - 19,311</td>
+                    <td>91.9</td>
+                    <td>4.7</td>
+                    <td><strong>139</strong></td>
+                </tr>
+            
+                <tr>
+                    <td><span class="cluster-badge" style="background-color: #27ae60;">C2</span></td>
+                    <td>10,504</td>
+                    <td>±2,851</td>
+                    <td>5,950 - 18,700</td>
+                    <td>62.5</td>
+                    <td>9.5</td>
+                    <td><strong>142</strong></td>
+                </tr>
+            
+                <tr>
+                    <td><span class="cluster-badge" style="background-color: #27ae60;">C3</span></td>
+                    <td>9,876</td>
+                    <td>±2,734</td>
+                    <td>5,950 - 19,190</td>
+                    <td>112.7</td>
+                    <td>10.7</td>
+                    <td><strong>121</strong></td>
+                </tr>
+            </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">🎯 Clustering Quality Metrics</h2>
+                <table>
+                    <thead>
+                        <tr><th>Metric</th><th>Value</th><th>Optimal</th><th>Interpretation</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Silhouette Score</strong></td>
+                            <td class="metric-ok"><strong>0.3175</strong></td>
+                            <td>→ 1.0</td>
+                            <td>Reasonable structure</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Calinski-Harabasz Index</strong></td>
+                            <td>273.84</td>
+                            <td>Higher = better</td>
+                            <td>Cluster separation</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Davies-Bouldin Index</strong></td>
+                            <td>0.0000</td>
+                            <td>→ 0.0</td>
+                            <td>Cluster compactness</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Inertia</strong></td>
+                            <td>522.87</td>
+                            <td>Lower = tighter</td>
+                            <td>Within-cluster sum of squares</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">📊 Analysis Plots</h2>
+                <div class="plots-grid">
+                    <div class="plot-card">
+                        <div class="plot-title">📊 Cluster Analysis Overview</div>
+                        <img src="../plots/analysis_overview.png" alt="📊 Cluster Analysis Overview">
+                    </div>
+                
+                    <div class="plot-card">
+                        <div class="plot-title">🌳 Hierarchical Dendrogram with Heatmap</div>
+                        <img src="../plots/dendrogram_heatmap.png" alt="🌳 Hierarchical Dendrogram with Heatmap">
+                    </div>
+                
+                    <div class="plot-card">
+                        <div class="plot-title">📉 Silhouette Profile</div>
+                        <img src="../plots/silhouette_profile.png" alt="📉 Silhouette Profile">
+                    </div>
+                
+                    <div class="plot-card">
+                        <div class="plot-title">🗺️ District Distribution</div>
+                        <img src="../plots/district_distribution.png" alt="🗺️ District Distribution">
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">🏘️ District Statistics</h2>
+                <table>
+                    <thead>
+                        <tr><th>District</th><th>Avg Price</th><th>Std Dev</th><th>Properties</th><th>Dominant Cluster</th></tr>
+                    </thead>
+                    <tbody>
+            <tr>
+                <td><strong>Srodmiescie</strong></td>
+                <td>27,152</td>
+                <td>±2,102</td>
+                <td>6</td>
+                <td>C0</td>
+            </tr>
+        
+            <tr>
+                <td><strong>Zoliborz</strong></td>
+                <td>25,501</td>
+                <td>±4,618</td>
+                <td>16</td>
+                <td>C0</td>
+            </tr>
+        
+            <tr>
+                <td><strong>Mokotow</strong></td>
+                <td>25,063</td>
+                <td>±4,871</td>
+                <td>12</td>
+                <td>C0</td>
+            </tr>
+        
+            <tr>
+                <td><strong>Wilanow</strong></td>
+                <td>22,940</td>
+                <td>±4,820</td>
+                <td>16</td>
+                <td>C0</td>
+            </tr>
+        
+            <tr>
+                <td><strong>Ochota</strong></td>
+                <td>19,615</td>
+                <td>±1,822</td>
+                <td>17</td>
+                <td>C0</td>
+            </tr>
+        
+            <tr>
+                <td><strong>Wola</strong></td>
+                <td>18,179</td>
+                <td>±3,212</td>
+                <td>19</td>
+                <td>C0</td>
+            </tr>
+        
+            <tr>
+                <td><strong>Bielany</strong></td>
+                <td>16,667</td>
+                <td>±3,392</td>
+                <td>24</td>
+                <td>C0</td>
+            </tr>
+        
+            <tr>
+                <td><strong>Śródmieście</strong></td>
+                <td>13,448</td>
+                <td>±2,004</td>
+                <td>15</td>
+                <td>C1</td>
+            </tr>
+        
+            <tr>
+                <td><strong>Praga-Południe</strong></td>
+                <td>12,856</td>
+                <td>±1,243</td>
+                <td>15</td>
+                <td>C1</td>
+            </tr>
+        
+            <tr>
+                <td><strong>Targowek</strong></td>
+                <td>12,743</td>
+                <td>±1,919</td>
+                <td>16</td>
+                <td>C1</td>
+            </tr>
+        
+            <tr>
+                <td><strong>Praga-Północ</strong></td>
+                <td>12,519</td>
+                <td>±1,688</td>
+                <td>15</td>
+                <td>C1</td>
+            </tr>
+        
+            <tr>
+                <td><strong>Praga-Poludnie</strong></td>
+                <td>12,431</td>
+                <td>±1,156</td>
+                <td>17</td>
+                <td>C1</td>
+            </tr>
+        
+            <tr>
+                <td><strong>Mokotów</strong></td>
+                <td>12,415</td>
+                <td>±1,599</td>
+                <td>15</td>
+                <td>C1</td>
+            </tr>
+        
+            <tr>
+                <td><strong>Włochy</strong></td>
+                <td>12,332</td>
+                <td>±1,358</td>
+                <td>15</td>
+                <td>C2</td>
+            </tr>
+        
+            <tr>
+                <td><strong>Bemowo</strong></td>
+                <td>12,147</td>
+                <td>±1,661</td>
+                <td>18</td>
+                <td>C2</td>
+            </tr>
+        
+            <tr>
+                <td><strong>Targówek</strong></td>
+                <td>12,017</td>
+                <td>±1,810</td>
+                <td>15</td>
+                <td>C1</td>
+            </tr>
+        
+            <tr>
+                <td><strong>Żoliborz</strong></td>
+                <td>12,008</td>
+                <td>±1,618</td>
+                <td>15</td>
+                <td>C1</td>
+            </tr>
+        
+            <tr>
+                <td><strong>Wilanów</strong></td>
+                <td>11,971</td>
+                <td>±1,747</td>
+                <td>15</td>
+                <td>C3</td>
+            </tr>
+        
+            <tr>
+                <td><strong>Ursynów</strong></td>
+                <td>11,895</td>
+                <td>±1,621</td>
+                <td>15</td>
+                <td>C3</td>
+            </tr>
+        
+            <tr>
+                <td><strong>Białołęka</strong></td>
+                <td>11,595</td>
+                <td>±1,848</td>
+                <td>15</td>
+                <td>C3</td>
+            </tr>
+        
+            <tr>
+                <td><strong>Rembertów</strong></td>
+                <td>11,461</td>
+                <td>±1,286</td>
+                <td>15</td>
+                <td>C3</td>
+            </tr>
+        
+            <tr>
+                <td><strong>Ursynow</strong></td>
+                <td>11,074</td>
+                <td>±1,230</td>
+                <td>18</td>
+                <td>C3</td>
+            </tr>
+        
+            <tr>
+                <td><strong>Wesoła</strong></td>
+                <td>10,459</td>
+                <td>±1,089</td>
+                <td>15</td>
+                <td>C3</td>
+            </tr>
+        
+            <tr>
+                <td><strong>Praga-Polnoc</strong></td>
+                <td>8,344</td>
+                <td>±1,512</td>
+                <td>18</td>
+                <td>C1</td>
+            </tr>
+        
+            <tr>
+                <td><strong>Wawer</strong></td>
+                <td>8,107</td>
+                <td>±1,300</td>
+                <td>17</td>
+                <td>C3</td>
+            </tr>
+        
+            <tr>
+                <td><strong>Ursus</strong></td>
+                <td>7,647</td>
+                <td>±1,307</td>
+                <td>17</td>
+                <td>C2</td>
+            </tr>
+        
+            <tr>
+                <td><strong>Wlochy</strong></td>
+                <td>7,575</td>
+                <td>±1,282</td>
+                <td>15</td>
+                <td>C2</td>
+            </tr>
+        
+            <tr>
+                <td><strong>Rembertow</strong></td>
+                <td>7,384</td>
+                <td>±1,292</td>
+                <td>17</td>
+                <td>C3</td>
+            </tr>
+        
+            <tr>
+                <td><strong>Bialoleka</strong></td>
+                <td>7,189</td>
+                <td>±1,365</td>
+                <td>17</td>
+                <td>C3</td>
+            </tr>
+        
+            <tr>
+                <td><strong>Wesola</strong></td>
+                <td>6,969</td>
+                <td>±1,285</td>
+                <td>17</td>
+                <td>C3</td>
+            </tr>
+        </tbody>
+                </table>
+            </div>
+
+            <div class="section" style="text-align: center;">
+                <h2 class="section-title">🗺️ Interactive Map</h2>
+                <p style="margin-bottom: 20px; color: #666;">
+                    Explore clusters with toggleable layers for each cluster.
+                </p>
+                <a href="../maps/cluster_map.html" class="map-link" target="_blank">🗺️ Open Interactive Map</a>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">📚 Methodology</h2>
+                <div class="methodology">
+                    <h4>K-Means Clustering</h4>
+                    <ul>
+                        <li>Features: price/m², area, distance from center</li>
+                        <li>StandardScaler normalization</li>
+                        <li>Optimal k via silhouette + elbow method</li>
+                    </ul>
+                    <h4 style="margin-top: 15px;">District Boundaries</h4>
+                    <ul>
+                        <li>Real polygons from OpenStreetMap</li>
+                        <li>18 Warsaw districts</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+        <div class="footer">
+            <p>Warsaw Real Estate Clustering | Zaawansowana Eksploracja Danych | 2025</p>
+        </div>
+    </div>
+</body>
+</html>

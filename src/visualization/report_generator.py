@@ -417,36 +417,35 @@ class ReportGenerator:
                 </table>
             </div>
 """
-
+    
     def _generate_plots_section(self, plots_dir: Path) -> str:
-            """Generate section with embedded plot images."""
-            plot_info = [
-                ("analysis_overview.png", "📊 Cluster Analysis Overview"),
-                ("dendrogram_heatmap.png", "🌳 Hierarchical Dendrogram with Heatmap"),
-                ("silhouette_profile.png", "📉 Silhouette Profile"),
-                ("district_distribution.png", "🗺️ District Distribution"),
-            ]
-
-            plots = []
-            for filename, title in plot_info:
-                if (plots_dir / filename).exists():
-                    # Use relative path from reports/ to plots/
-                    plots.append(f"""
-                        <div class="plot-card">
-                            <div class="plot-title">{title}</div>
-                            <img src="../plots/{filename}" alt="{title}">
-                        </div>
-                    """)
-
-            if not plots:
-                return ""
-
-            return f"""
-                <div class="section">
-                    <h2 class="section-title">📊 Analysis Plots</h2>
-                    <div class="plots-grid">{"".join(plots)}</div>
-                </div>
-    """
+        """Generate section with embedded plot images."""
+        plot_info = [
+            ("analysis_overview.png", "📊 Cluster Analysis Overview"),
+            ("dendrogram_heatmap.png", "🌳 Hierarchical Dendrogram with Heatmap"),
+            ("silhouette_profile.png", "📉 Silhouette Profile"),
+            ("district_distribution.png", "🗺️ District Distribution"),
+        ]
+        
+        plots = []
+        for filename, title in plot_info:
+            if (plots_dir / filename).exists():
+                plots.append(f"""
+                    <div class="plot-card">
+                        <div class="plot-title">{title}</div>
+                        <img src="../plots/{filename}" alt="{title}">
+                    </div>
+                """)
+        
+        if not plots:
+            return ""
+        
+        return f"""
+            <div class="section">
+                <h2 class="section-title">📊 Analysis Plots</h2>
+                <div class="plots-grid">{"".join(plots)}</div>
+            </div>
+"""
     
     def _compute_district_stats(self, df: pd.DataFrame, label_col: str) -> Optional[pd.DataFrame]:
         """Compute district-level statistics."""
