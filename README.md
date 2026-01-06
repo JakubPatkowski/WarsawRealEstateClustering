@@ -4,9 +4,10 @@
 
 [![Python](https://img.shields.io/badge/Python-3.14+-3776AB?style=flat&logo=python)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![GeoPandas](https://img.shields.io/badge/GeoPandas-0.14+-139C5A?style=flat)](https://geopandas.org/)
+[![GeoPandas](https://img.shields.io/badge/GeoPandas-0.10+-139C5A?style=flat)](https://geopandas.org/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Release](https://img.shields.io/github/v/release/JakubPatkowski/WarsawRealEstateClustering)](https://github.com/JakubPatkowski/WarsawRealEstateClustering/releases)
+[![Python Lint](https://github.com/JakubPatkowski/WarsawRealEstateClustering/actions/workflows/python-lint.yml/badge.svg)](https://github.com/JakubPatkowski/WarsawRealEstateClustering/actions)
 
 ![Interactive Map Preview](docs/screenshots/cluster_open_street_map.png)
 ![Raport Preview](docs/screenshots/report_overview.png)
