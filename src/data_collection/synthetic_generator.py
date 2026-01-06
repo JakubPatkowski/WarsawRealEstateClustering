@@ -29,43 +29,43 @@ logger = get_logger(__name__)
 # Market segment definitions with distinct characteristics
 MARKET_SEGMENTS: Dict[str, Dict[str, Any]] = {
     "premium": {
-        "weight": 0.15,  # 15% of properties
-        "price_range": (22000, 35000),  # Very high prices
-        "area_range": (35, 80),  # Smaller, exclusive apartments
-        "year_range": (2015, 2024),  # New construction
-        "districts": ["Srodmiescie", "Mokotow", "Zoliborz", "Wilanow"],
-        "floor_preference": "high",  # Prefers high floors
-        "distance_modifier": 0.8,  # Closer to center
+        "weight": 0.15,
+        "price_range": (22000, 35000),
+        "area_range": (35, 80),
+        "year_range": (2015, 2024),
+        "districts": ["Śródmieście", "Mokotów", "Żoliborz", "Wilanów"],
+        "floor_preference": "high",
+        "distance_modifier": 0.8,
     },
     "upper": {
-        "weight": 0.25,  # 25% of properties
+        "weight": 0.25,
         "price_range": (16000, 22000),
         "area_range": (50, 100),
         "year_range": (2000, 2020),
-        "districts": ["Mokotow", "Ochota", "Wola", "Zoliborz", "Bielany", "Wilanow"],
+        "districts": ["Mokotów", "Ochota", "Wola", "Żoliborz", "Bielany", "Wilanów"],
         "floor_preference": "medium",
         "distance_modifier": 0.9,
     },
     "standard": {
-        "weight": 0.35,  # 35% of properties
+        "weight": 0.35,
         "price_range": (11000, 16000),
         "area_range": (45, 120),
         "year_range": (1970, 2015),
-        "districts": ["Wola", "Praga-Poludnie", "Bielany", "Ursynow", "Bemowo", "Targowek"],
+        "districts": ["Wola", "Praga-Południe", "Bielany", "Ursynów", "Bemowo", "Targówek"],
         "floor_preference": "any",
         "distance_modifier": 1.0,
     },
     "economy": {
-        "weight": 0.25,  # 25% of properties
-        "price_range": (7000, 12000),  # Low prices
-        "area_range": (40, 150),  # Larger, older apartments
-        "year_range": (1950, 1995),  # Older construction
+        "weight": 0.25,
+        "price_range": (7000, 12000),
+        "area_range": (40, 150),
+        "year_range": (1950, 1995),
         "districts": [
-            "Bialoleka", "Targowek", "Ursus", "Wawer", "Wesola", 
-            "Rembertow", "Praga-Polnoc", "Wlochy"
+            "Białołęka", "Targówek", "Ursus", "Wawer", "Wesoła",
+            "Rembertów", "Praga-Północ", "Włochy"
         ],
         "floor_preference": "low",
-        "distance_modifier": 1.2,  # Further from center
+        "distance_modifier": 1.2,
     }
 }
 
@@ -121,16 +121,16 @@ class SyntheticDataGenerator:
             )
         
         logger.info("Initialized generator with distinct market segments")
-    
+
     def _load_district_polygons(self, gdf: gpd.GeoDataFrame) -> None:
         """
         Load district polygons from GeoDataFrame.
-        
+
         Args:
             gdf: GeoDataFrame with 'name' and 'geometry' columns
         """
         for _, row in gdf.iterrows():
-            name = row["name"]
+            name = row.get("name_pl", row["name"])
             geom = row.geometry
             if geom is not None and geom.is_valid:
                 self._district_polygons[name] = geom

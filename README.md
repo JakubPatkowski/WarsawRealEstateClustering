@@ -64,6 +64,9 @@ pip install -r requirements.txt
 # Or using uv (faster)
 uv pip install -r requirements.txt
 
+# Activate venv
+.\.venv\Scripts\activate 
+
 # 3. Run the analysis
 python main.py -v
 ```
