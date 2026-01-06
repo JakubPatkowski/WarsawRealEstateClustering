@@ -23,6 +23,7 @@ dependencies = [
     "scipy>=1.7.0",
     "shapely>=1.8.0",
     "types-requests>=2.32.4.20250913",
+    "seaborn>=0.13.2",
 ]
 
 
